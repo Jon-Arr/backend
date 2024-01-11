@@ -1,3 +1,5 @@
+const fs = require('fs')
+
 class ProductManager {
     #products = []
     #users = []
@@ -29,45 +31,55 @@ class ProductManager {
         this.#id = this.#id + 1
         this.#products.push(product)
 
-        // let stringProducts = JSON.stringify(this.#products)
-        // const fs = require('fs')
-        // const ingresarProducts = async () => {
-        //     await fs.promises.writeFile('./Products.json', stringProducts)
-        // }
-        // ingresarProducts()
+        let stringProducts = JSON.stringify(this.#products)
+        const ingresarProducts = async () => {
+            await fs.promises.writeFile('./Products.json', stringProducts)
+        }
+        ingresarProducts()
     }
     getProducts() {
-        return this.#products
-        // const fs = require('fs')
-        // const leeProducts = async () => {
-        //     let respProducts = await fs.promises.readFile('./Products.json', 'utf-8')
-        //     console.log(JSON.parse(respProducts))
-        // }
-        // leeProducts()
+        const leeProducts = async () => {
+            let respProducts = await fs.promises.readFile('./Products.json', 'utf-8')
+            // console.log(JSON.parse(respProducts))
+            let readProduct = (JSON.parse(respProducts))
+            return readProduct
+        }
+        return leeProducts()
     }
-    getProductById(id) {
-        const findProduct = this.#products.find(producto => producto.id == id)
-        return findProduct        
+    getProductById(id) {     
 
-        // const fs = require('fs')
-        // const leeUnProducts = async () => {
-        //     let respProducts = await fs.promises.readFile('./Products.js', 'utf-8')
-        //     const unProducto = JSON.parse(respProducts)
-            // const findProduct = unProducto.find(unProducto => unProducto.id === id)
-        //     if (!findProduct) {
-        //         console.log("Not Found")
-        //     } else {
-        //         console.log(findProduct)
-        //     }
-        // }
-        // leeUnProducts()
+        const leeUnProducts = async () => {
+            let respProducts = await fs.promises.readFile('./Products.json', 'utf-8')
+            const unProducto = JSON.parse(respProducts)
+            const findProduct = unProducto.find(unProducto => unProducto.id == id)
+            if (!findProduct) {
+                console.log("Not Found")
+            } else {
+                return findProduct
+            }
+        }
+        return leeUnProducts()
     }
+
     getProductLimit(limit){
-        const limitProduct = this.#products.slice(0,limit)
-        return limitProduct
+        // const limitProduct = this.#products.slice(0,limit)
+        // return limitProduct
+
+        const limitProducts = async () => {
+            let respProducts = await fs.promises.readFile('./Products.json', 'utf-8')
+            const limitProduct = JSON.parse(respProducts)
+            const prodLimited = limitProduct.slice(0, limit)
+            if (!prodLimited) {
+                console.log("Not Found")
+            } else {
+                return prodLimited
+            }
+        }
+        return limitProducts()
+
     }
+
     updateProduct(id, updtField) {
-        const fs = require('fs')
         fs.promises.readFile('./Products.js', 'utf-8')
             .then(data => {
                 const products = JSON.parse(data)
@@ -85,7 +97,6 @@ class ProductManager {
             .catch(error => console.error("No se pudo actualizar el producto", error))
     }
     deleteProduct(id) {
-        const fs = require('fs')
         fs.promises.readFile('./Products.js', 'utf-8')
             .then(data => {
                 const products = JSON.parse(data)
@@ -119,14 +130,12 @@ class ProductManager {
         this.#users.push(user)
 
         let stringUsers = JSON.stringify(this.#users)
-        const fs = require('fs')
         const ingresarUsuario = async () => {
             await fs.promises.writeFile('./Usuarios.js', stringUsers)
         }
         ingresarUsuario()
     }
     consultarUsers() {
-        const fs = require('fs')
         const leeUsuarios = async () => {
             let respUsers = await fs.promises.readFile('./Usuarios.js', 'utf-8')
             console.log(JSON.parse(respUsers))
@@ -140,10 +149,10 @@ class ProductManager {
 const producto = new ProductManager()
 
 //INSERTAR NUEVO PRODUCTO
-producto.addProduct("Pokeball", "Objeto de captura pokemon", 10, "pokeball.jpg","POKE00001", 20)
-producto.addProduct("Pocion", "Objeto para curar pokemon", 15, "pocion.jpg", "POKE00002", 20)
-producto.addProduct("MT1", "Movimiento pokemon", 100, "mt1.jpg", "POKE00003", 5)
-producto.addProduct("MT2", "Movimiento pokemon", 100, "mt2.jpg", "POKE00004", 5)
+// producto.addProduct("Pokeball", "Objeto de captura pokemon", 10, "pokeball.jpg","POKE00001", 20)
+// producto.addProduct("Pocion", "Objeto para curar pokemon", 15, "pocion.jpg", "POKE00002", 20)
+// producto.addProduct("MT1", "Movimiento pokemon", 100, "mt1.jpg", "POKE00003", 5)
+// producto.addProduct("MT2", "Movimiento pokemon", 100, "mt2.jpg", "POKE00004", 5)
 
 //EDITAR PRODUCTO
 // producto.updateProduct(2, { title: "MT2", thumbnail: "mt2.jpg" })

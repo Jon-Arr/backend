@@ -10,23 +10,23 @@ app.get('/', (req, res) => {
   res.send('<h1>Bienvenido</h1><p>Visite /products para ver la lista de productos </p><p>Visite /products/ + id para ver un producto individual</p><p>Visite /products?limit= + numero limite para ver cantidad de productos deseada')
 })
 
-app.get('/products', (req, res) => {
-  
-  if (req.query.limit) {
-    let productLimit = productManager.getProductLimit(req.query.limit)
-    res.send(productLimit)
-  }
-  
-  let products = productManager.getProducts()
-  if(!products) return res.send({"error":"No exsisten productos"})
-  res.send(products)
+app.get('/products', async (req, res) => {
 
+  if (req.query.limit) {
+    let productLimit = await productManager.getProductLimit(req.query.limit)
+    res.send(productLimit)
+  } else {
+
+    let products = await productManager.getProducts()
+    if (!products) return res.send({ "error": "No exsisten productos" })
+    res.send(products)
+  }
 
 })
 
-app.get('/products/:idProduct', (req, res) => {
-  let idProduct = req.params.idProduct
-  let producto = productManager.getProductById(idProduct)
+app.get('/products/:pid', async (req, res) => {
+  let pid = req.params.pid
+  let producto = await productManager.getProductById(pid)
   if (producto) {
     res.send(producto)
   } else {
@@ -37,14 +37,3 @@ app.get('/products/:idProduct', (req, res) => {
 app.listen(port, () => {
   console.log(`Aplicacion corriendo en puerto ${port}`)
 })
-
-// ***usar productmanager
-// ***en app js importar productmanager
-// ***ruta products que lea productos y devuelva en un objeto
-// ***agregar soporte por query param el valor ?limit= que recibe un limite de resultados
-// ***si no se recibe query  devolver todo
-// ***si recibe limite devolver el nro de producto solicitado
-// usar github para entrega
-////*** */ src con app.js y productmanager dentro
-////*** package.json con la info del proyecto
-////***no incluir node_modules
