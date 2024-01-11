@@ -40,7 +40,6 @@ class ProductManager {
     getProducts() {
         const leeProducts = async () => {
             let respProducts = await fs.promises.readFile('./Products.json', 'utf-8')
-            // console.log(JSON.parse(respProducts))
             let readProduct = (JSON.parse(respProducts))
             return readProduct
         }
@@ -62,9 +61,6 @@ class ProductManager {
     }
 
     getProductLimit(limit){
-        // const limitProduct = this.#products.slice(0,limit)
-        // return limitProduct
-
         const limitProducts = async () => {
             let respProducts = await fs.promises.readFile('./Products.json', 'utf-8')
             const limitProduct = JSON.parse(respProducts)
@@ -76,7 +72,6 @@ class ProductManager {
             }
         }
         return limitProducts()
-
     }
 
     updateProduct(id, updtField) {
