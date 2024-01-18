@@ -113,22 +113,20 @@ class ProductManager {
             .catch(error => console.error("No se pudo actualizar el producto", error))
     }
     deleteProduct(id) {
-        fs.promises.readFile('./Products.json', 'utf-8')
-            .then(data => {
-                const products = JSON.parse(data)
-                const findProduct = products.findIndex(product => product.id == id)
-
-                if (!findProduct) {
-                    console.log("Not Found")
-                    return
-                }
-                products.splice(findProduct, 1)
-                const deletedProducts = JSON.stringify(products)
-
-                return fs.promises.writeFile('./Products.json', deletedProducts)
-            })
-            .then(() => console.log("El producto fue eliminado"))
-            .catch(error => console.error("No se pudo eliminar el producto", error))
+        const delProduct = async () => {
+            let deleteProduct = await fs.promises.readFile('./Products.json', 'utf-8')
+            const unProducto = JSON.parse(deleteProduct)
+            const findProduct = unProducto.find(unProducto => unProducto.id === id)
+            if (!findProduct) {
+                console.log("Not Found")
+            } else {
+                unProducto.splice(findProduct, 1)
+                console.log("Product deleted")
+                const updatedProducts = JSON.stringify(unProducto)
+                return fs.promises.writeFile('./Products.json', updatedProducts)
+            }
+        }
+        return delProduct()
     }
 }
 
@@ -152,7 +150,7 @@ const producto = new ProductManager()
 // console.log(productById)
 
 //ELIMINAR PRODUCTO//////
-// const delProduct = producto.deleteProduct(1)
+// const delProduct = producto.deleteProduct(3)
 // console.log(delProduct)
 
 //LIMITAR PRODUCTOS

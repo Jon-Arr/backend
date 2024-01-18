@@ -38,7 +38,7 @@ app.listen(port, () => {
 // ***->-> title - description - code - price - status (true por defecto) - stock - category (todos obligatorios)
 // ->-> thumbnails auto generado sin repeticion (no obligatorio)
 // ***-> el PUT /:pid toma un producto y lo actualiza por los campos enviados desde el body (mantener el mismo id)
-// -> ruta DELETE /:pid elimina el producto con el pid indicado
+// **-> ruta DELETE /:pid elimina el producto con el pid indicado
 // ***el carrito en /api/carts/ configurar
 // ***-> raiz POST / crea un nuevo carrito con
 // ***->-> id autoincremental sin duplicar y autogenerado

@@ -37,17 +37,16 @@ class CartManager {
     updateCart(id, product) {
         fs.promises.readFile('./Carts.json', 'utf-8')
             .then(data => {
-                const products = JSON.parse(data)
-                const findProduct = products.findIndex(product => product.id == id)
+                const carts = JSON.parse(data)
+                const findCart = carts.findIndex(cart => cart.id == id)
 
-                if (!findProduct) {
+                if (!findCart) {
                     console.log("Not Found")
                     return
                 }
-                Object.push(products[findProduct],product)
-                // Object.assign(products[findProduct], product)
-                const updatedProducts = JSON.stringify(products)
-                return fs.promises.writeFile('./Carts.json', updatedProducts)
+                Object.push(carts[findCart],product)
+                const updatedcarts = JSON.stringify(carts)
+                return fs.promises.writeFile('./Carts.json', updatedcarts)                
             })
             .then(() => console.log("El carrito fue actualizado"))
             .catch(error => console.error("No se pudo actualizar el carrito", error))
@@ -58,6 +57,6 @@ const carrito = new CartManager()
 
 // carrito.addCart({title:"pokepureba", desc:"esto es una prueba"})
 
-carrito.updateCart(0,[{producto:2,quantity:1}])
+// carrito.updateCart(0,{producto:2,quantity:1})
 
-// module.exports = carrito
+module.exports = carrito
