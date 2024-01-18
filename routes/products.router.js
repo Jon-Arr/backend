@@ -13,7 +13,6 @@ router.get("/", async (req, res) => {
         if (!products) return res.send({ "error": "No exsisten productos" })
         res.send(products)
     }
-    res.status(200).send(prods)
 })
 
 router.get('/:pid', async (req, res) => {
@@ -48,7 +47,6 @@ router.delete("/:pid", async (req, res) => {
     let delProduct = await productManager.deleteProduct(pid)
     delProduct
     res.send("Producto eliminado")
-    res.status(201).send({ status: 201 })
 })
 
 module.exports = router
