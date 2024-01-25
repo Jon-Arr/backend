@@ -11,7 +11,7 @@ class CartManager {
             id: this.#id,
             product: this.#product
         }
-        this.#id = this.#id + 1        
+        this.#id = this.#id + 1
         this.#carts.push(cart)
 
         let stringCarts = JSON.stringify(this.#carts)
@@ -34,29 +34,43 @@ class CartManager {
         }
         return readCart()
     }
-    updateCart(id, product) {
-        fs.promises.readFile('./Carts.json', 'utf-8')
-            .then(data => {
-                const carts = JSON.parse(data)
-                const findCart = carts.findIndex(cart => cart.id == id)
+    async addProductToCart(cartId, productId, quantity) {
+        try {
+            let data = await fs.promises.readFile('./Carts.json', 'utf-8')
+            let carts = JSON.parse(data)
+            const existingCartIndex = carts.find(cart => cart.id === cartId)
 
-                if (!findCart) {
-                    console.log("Not Found")
-                    return
+            if (!existingCartIndex) {
+                console.log("Cart not found")
+                return
+            }
+            const existingProduct = existingCartIndex.product.find(product => product.id === productId);
+
+            if (existingProduct) {
+                existingProduct.quantity += 1;
+            } else {
+
+                let newProduct = {
+                    id: productId,
+                    quantity: quantity
                 }
-                Object.push(carts[findCart],product)
-                const updatedcarts = JSON.stringify(carts)
-                return fs.promises.writeFile('./Carts.json', updatedcarts)                
-            })
-            .then(() => console.log("El carrito fue actualizado"))
-            .catch(error => console.error("No se pudo actualizar el carrito", error))
+                existingCartIndex.product.push(newProduct)
+            }
+                await fs.promises.writeFile('./Carts.json', JSON.stringify(carts))
+
+                console.log("Product added to cart")
+        } catch (error) {
+            console.error("Error adding product:", error)
+        }
     }
 }
 
 const carrito = new CartManager()
 
-// carrito.addCart({title:"pokepureba", desc:"esto es una prueba"})
+// carrito.addCart()
 
-// carrito.updateCart(0,{producto:2,quantity:1})
+// const cartById = carrito.getCartById(0)
+
+// carrito.addProductToCart(0, 1, 1)
 
 module.exports = carrito

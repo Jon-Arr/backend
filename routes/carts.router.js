@@ -1,4 +1,5 @@
 const cartManager = require("../src/CartManager")
+const productManager = require("../src/ProductManager")
 
 const express = require('express')
 const router = express.Router()
@@ -20,13 +21,24 @@ router.get('/:cid', async (req, res) => {
     }
 })
 
-router.post("/:cid/products/:pid", async (req, res) => {
-    let cid = req.params.cid
-    let pid = req.params.pid
-    let body = req.body    
-    let addCarts = await cartManager.addCart(body)
-    addCarts
-    res.status(201).send({ status: 201 })
+router.post('/:cid/products/:pid', async (req, res) => {
+    try {
+        let cid = Number(req.params.cid)
+        let pid = Number(req.params.pid)
+        let quantity = req.body.quantity || 1
+
+        const product = await productManager.getProductById(pid)
+        if (!product) {
+            return res.status(404).send({ error: "Producto no encontrado" })
+        }
+
+        await cartManager.addProductToCart(cid, pid, quantity)
+
+        res.status(201).send({ status: 201 })
+    } catch (error) {
+        console.error("Error adding product to cart:", error)
+        res.status(500).send({ error: "Error interno del servidor" })
+    }
 })
 
 
