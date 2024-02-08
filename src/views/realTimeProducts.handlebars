@@ -1,14 +1,83 @@
-<ul id="realtimeProductList">
-</ul>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real Time Products</title>
+</head>
+<body>
+  <h1>Productos en Tiempo Real</h1>
+  <ul id="productList"></ul>
 
-<form id="productForm">
-    <input type="text" id="title" placeholder="Título">
-    <input type="number" id="price" placeholder="Precio">
-    <button type="submit">New product</button>
-</form>
+  <h2>Agregar Producto</h2>
+  <form id="addProductForm">
+    <label for="title">Título:</label>
+    <input type="text" id="title" name="title" required>
+    <label for="description">Descripcion:</label>
+    <input type="text" id="description" name="description" required>
+    <label for="thumbnail">Imagen:</label>
+    <input type="text" id="thumbnail" name="thumbnail" required>
+    <label for="stock">Stock:</label>
+    <input type="number" id="stock" name="stock" required>
+    <label for="code">Code:</label>
+    <input type="text" id="code" name="code" required>
+    <label for="price">Precio:</label>
+    <input type="number" id="price" name="price" required>
+    <button type="submit">Agregar Producto</button>
+  </form>
 
-<button id="delete-product">Delete product</button>
+  <h2>Eliminar Producto</h2>
+  <form id="deleteProductForm">
+    <label for="productId">ID del Producto a Eliminar:</label>
+    <input type="text" id="productId" name="productId" required>
+    <button type="submit">Eliminar Producto</button>
+  </form>
 
-<script id="realtime-template" type="text/x-handlebars-template">
-    <li>{{title}} - {{price}}</li>
-</script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io()
+
+    // Función para renderizar la lista de productos
+    function renderProducts(products) {
+      const productList = document.getElementById('productList')
+      productList.innerHTML = ''
+
+      products.forEach((product) => {
+        const listItem = document.createElement('li')
+        listItem.textContent = `${product.title} - ${product.price}`
+        productList.appendChild(listItem)
+      });
+    }
+
+    // Escuchar la actualización de productos
+    socket.on('updateProducts', (products) => {
+      renderProducts(products)
+    });
+
+    // Enviar formulario de agregar producto
+    const addProductForm = document.getElementById('addProductForm')
+    addProductForm.addEventListener('submit', (event) => {
+      event.preventDefault()
+      const formData = new FormData(addProductForm)
+      const title = formData.get('title')
+      const description = formData.get('description')
+      const price = formData.get('price')
+      const thumbnail = formData.get('thumbnail')
+      const stock = formData.get('stock')
+      const code = formData.get('code')
+      socket.emit('addProduct', { title, description, price, thumbnail, code, stock })
+      addProductForm.reset()
+    });
+
+    // Enviar formulario de eliminar producto
+    const deleteProductForm = document.getElementById('deleteProductForm');
+    deleteProductForm.addEventListener('submit', (event) => {
+      event.preventDefault()
+      const formData = new FormData(deleteProductForm)
+      const productId = formData.get('productId')
+      socket.emit('deleteProduct', productId)
+      deleteProductForm.reset()
+    });
+  </script>
+</body>
+</html>

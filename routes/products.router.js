@@ -31,6 +31,7 @@ router.post("/", async (req, res) => {
     addProducts
     res.status(201).send({ status: 201 })
 
+    io.emit('updateProducts', products)
 })
 
 router.put("/:pid", async (req, res) => {
@@ -40,6 +41,8 @@ router.put("/:pid", async (req, res) => {
     updProduct
     res.send("Producto modificado")
     res.status(201).send({ status: 201 })
+
+    io.emit('updateProducts', products)
 })
 
 router.delete("/:pid", async (req, res) => {
@@ -47,6 +50,7 @@ router.delete("/:pid", async (req, res) => {
     let delProduct = await productManager.deleteProduct(pid)
     delProduct
     res.send("Producto eliminado")
+
 })
 
 module.exports = router

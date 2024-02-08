@@ -1,11 +1,9 @@
 const express = require('express')
 const router = express.Router()
-const productsRouter = require("./products.router")
+const path = require('path')
 
-router.get("/", (req, res) => {
-    res.render("home",  { products: productsRouter.getProducts() })
+router.get('/realTimeProducts', (req, res) => {
+    res.render('realTimeProducts')
 })
-
-router.use('/realTimeProducts', productsRouter)
 
 module.exports = router
