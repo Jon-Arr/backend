@@ -113,20 +113,24 @@ class ProductManager {
             .catch(error => console.error("No se pudo actualizar el producto", error))
     }
     deleteProduct(id) {
-        const delProduct = async () => {
-            let deleteProduct = await fs.promises.readFile('./Products.json', 'utf-8')
-            const unProducto = JSON.parse(deleteProduct)
-            const findProduct = unProducto.find(unProducto => unProducto.id === id)
-            if (!findProduct) {
-                console.log("Not Found")
-            } else {
-                unProducto.splice(findProduct, 1)
-                console.log("Product deleted")
-                const updatedProducts = JSON.stringify(unProducto)
-                return fs.promises.writeFile('./Products.json', updatedProducts)
-            }
-        }
-        return delProduct()
+        fs.promises.readFile('./Products.json', 'utf-8')
+            .then(data => {
+                const products = JSON.parse(data);
+                const index = products.findIndex(product => product.id == id);
+    
+                if (index === -1) {
+                    console.log("Producto no encontrado");
+                    return;
+                }
+    
+                products.splice(index, 1); // Elimina el producto del array
+    
+                const updatedProducts = JSON.stringify(products);
+    
+                return fs.promises.writeFile('./Products.json', updatedProducts);
+            })
+            .then(() => console.log("Producto eliminado exitosamente"))
+            .catch(error => console.error("Error al eliminar producto:", error));
     }
 }
 
@@ -150,8 +154,8 @@ const producto = new ProductManager()
 // console.log(productById)
 
 //ELIMINAR PRODUCTO//////
-// const delProduct = producto.deleteProduct(3)
-// console.log(delProduct)
+const delProduct = producto.deleteProduct(2)
+console.log(delProduct)
 
 //LIMITAR PRODUCTOS
 // const productLimit = producto.getProductLimit(2)
@@ -164,4 +168,4 @@ const producto = new ProductManager()
 // const productos = producto.consultarUsers()
 // console.log(productos)
 
-module.exports = producto
+// module.exports = producto
