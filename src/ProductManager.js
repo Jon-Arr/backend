@@ -6,7 +6,21 @@ class ProductManager {
     // #thumbnail = []
     #status = true
 
-    addProduct(title, description, price, thumbnail, code, stock) {
+    async addProduct(title, description, price, thumbnail, code, stock) {
+
+        try {
+            const data = await fs.promises.readFile('./Products.json', 'utf-8')
+            this.#products = JSON.parse(data)
+            const productoLeido = this.#products
+            const maxId = Math.max(...productoLeido.map(productoLeido => productoLeido.id))
+            if(maxId < 1){
+                this.#id = 1
+            }else{
+                this.#id = maxId + 1
+            }
+        } catch (error) {
+            console.error('Error al cargar los productos:', error)
+        }
 
         if (!title || !description || !price || !code || !stock) {
             console.log("Debe introducir todos los atributos para ingresar un producto:")
@@ -40,7 +54,7 @@ class ProductManager {
         }
 
         let product = {
-            id: this.#id,
+            id: this.#id++,
             title: title,
             description: description,
             price: price,
@@ -49,14 +63,15 @@ class ProductManager {
             stock: stock,
             status: this.#status
         }
-        this.#id = this.#id + 1
         this.#products.push(product)
 
-        let stringProducts = JSON.stringify(this.#products)
-        const ingresarProducts = async () => {
+        try {
+            const stringProducts = JSON.stringify(this.#products);
             await fs.promises.writeFile('./Products.json', stringProducts)
+            console.log("Producto añadido exitosamente")
+        } catch (error) {
+            console.error('Error al escribir el archivo de productos:', error)
         }
-        ingresarProducts()
     }
     getProducts() {
         const leeProducts = async () => {
@@ -117,16 +132,16 @@ class ProductManager {
             .then(data => {
                 const products = JSON.parse(data);
                 const index = products.findIndex(product => product.id == id);
-    
+
                 if (index === -1) {
                     console.log("Producto no encontrado");
                     return;
                 }
-    
+
                 products.splice(index, 1); // Elimina el producto del array
-    
+
                 const updatedProducts = JSON.stringify(products);
-    
+
                 return fs.promises.writeFile('./Products.json', updatedProducts);
             })
             .then(() => console.log("Producto eliminado exitosamente"))
@@ -154,8 +169,8 @@ const producto = new ProductManager()
 // console.log(productById)
 
 //ELIMINAR PRODUCTO//////
-const delProduct = producto.deleteProduct(2)
-console.log(delProduct)
+// const delProduct = producto.deleteProduct(2)
+// console.log(delProduct)
 
 //LIMITAR PRODUCTOS
 // const productLimit = producto.getProductLimit(2)
@@ -168,4 +183,4 @@ console.log(delProduct)
 // const productos = producto.consultarUsers()
 // console.log(productos)
 
-// module.exports = producto
+module.exports = producto
