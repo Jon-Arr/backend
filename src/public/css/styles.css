@@ -1,0 +1,36 @@
+h1{
+    display: flex;
+    justify-content: center;
+}
+.content{
+    display: flex;
+    justify-content: space-around;
+}
+.cont-cards, #productList{
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    list-style: none;
+}
+.card, #productList li{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 2px black solid;
+    border-radius: 20px;
+    padding: 10px;
+    width: 200px;
+    margin-bottom: 5px;
+    box-shadow: 5px 5px 5px black;
+}
+.forms{
+    border: 2px black solid;
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 5px 5px 5px black;
+}
+form{
+    display: flex;
+    flex-direction: column;
+    width:200px;
+}

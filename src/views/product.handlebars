@@ -1,0 +1,14 @@
+<div class="cont-card-product">
+    <h1>{{title}}</h1>
+    {{#if photo}}
+    <img src="/img/products/{{thumbnail}}">
+    {{/if}}
+    <p>{{description}}</p>
+
+    {{#if isStock}}
+    <p>${{price}}</p>
+    {{else}}
+    <p>Sin stock</p>
+    {{/if}}
+
+</div>

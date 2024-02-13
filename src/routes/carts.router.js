@@ -1,5 +1,5 @@
-const cartManager = require("../src/CartManager")
-const productManager = require("../src/ProductManager")
+const cartManager = require("../daos/CartManager")
+const productManager = require("../daos/ProductManager")
 
 const express = require('express')
 const router = express.Router()

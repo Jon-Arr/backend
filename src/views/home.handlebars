@@ -3,14 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/styles.css">
   <title>Home</title>
 </head>
 <body>
   <h1>Listado de Productos</h1>
-  <ul>
+  <ul class="cont-cards">
     {{#each products}}
-      <li>{{this.title}} - ${{this.price}}</li>
+      <li class="card">
+        <h3>{{this.title}}</h3><img src="/img/products/{{this.thumbnail}}" alt="{{this.title}}"> <p>${{this.price}}</p></li>
     {{/each}}
   </ul>
+
+  <div>
+    <a href="http://localhost:8080/realTimeProducts">Productos en tiempo real</a>
+    <a href="http://localhost:8080/api/productsDb/">Productos en array</a>
+  </div>
 </body>
 </html>
