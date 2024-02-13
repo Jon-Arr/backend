@@ -9,6 +9,7 @@ const productsRouter = require("./routes/products.router")
 const cartsRouter = require("./routes/carts.router")
 const viewRouter = require("./routes/view.router")
 const productDbRouter = require("./routes/productDb.router")
+const messageRouter = require('./routes/message.router')
 const productsDao = require("./daos/products.dao")
 
 
@@ -35,6 +36,7 @@ app.use("/api/products", productsRouter)
 app.use("/api/carts", cartsRouter)
 app.use("/realTimeProducts", viewRouter)
 app.use("/api/productDb", productDbRouter)
+app.use('/messages', messageRouter)
 
 //Reglas
 
@@ -49,6 +51,10 @@ app.get('/', async (req, res) => {
   }
 })
 
+app.get('/chat', async (req, res) => {
+  res.render('chat');
+})
+
 app.get("/ping", (req, res) => {
   res.send("Pong")
 })
@@ -61,6 +67,7 @@ app.use((req, res, next) => {
 io.on('connection', async (socket) => {
   console.log('Usuario conectado')
   
+  //product manager actualizable
   socket.on('updateProducts', (products) => {
     io.emit('updateProducts', products)
   })
@@ -77,6 +84,11 @@ io.on('connection', async (socket) => {
   socket.on('deleteProduct', async (productId) => {
     const updatedProducts = await productsDao.delProduct(productId)
     io.emit('updateProducts', updatedProducts)
+  })
+  //fin product manager
+
+  socket.on("chat message", (msg) =>{
+    io.emit("chat message", msg)
   })
 
   socket.on('disconnect', () => {
