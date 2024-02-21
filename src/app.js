@@ -2,25 +2,28 @@
 const express = require('express')
 const handlebars = require("express-handlebars")
 const path = require("path")
-const {Server} = require("socket.io")
+const { Server } = require("socket.io")
 const mongoose = require('mongoose')
 const productManager = require("./daos/ProductManager")
 const productsRouter = require("./routes/products.router")
 const cartsRouter = require("./routes/carts.router")
+const cartsDbRouter = require("./routes/cartdb.router")
 const viewRouter = require("./routes/view.router")
 const productDbRouter = require("./routes/productDb.router")
-const messageRouter = require('./routes/message.router')
 const productsDao = require("./daos/products.dao")
+const messageRouter = require('./routes/message.router')
+const Message = require('./daos/models/chat.model')
 
 
 const app = express()
-const httpServer = app.listen(8080, () => 
+const httpServer = app.listen(8080, () =>
   console.log(`Aplicacion corriendo en puerto 8080`)
 )
 const io = new Server(httpServer)
 
 //Mongoose
-mongoose.connect("mongodb+srv://jaarriazae:axb5a2RQIMvydRDb@ecommerce.jzgqf9a.mongodb.net/?retryWrites=true&w=majority")
+// mongoose.connect("mongodb+srv://jaarriazae:axb5a2RQIMvydRDb@ecommerce.jzgqf9a.mongodb.net/?retryWrites=true&w=majority")
+mongoose.connect("mongodb://localhost:27017")
 
 //Uso handlebars vistas
 app.engine("handlebars", handlebars.engine())
@@ -33,13 +36,13 @@ app.use(express.static("public"))
 
 //Rutas
 app.use("/api/products", productsRouter)
+app.use("/api/productsDb", productDbRouter)
 app.use("/api/carts", cartsRouter)
+app.use("/api/cartsdb", cartsDbRouter)
 app.use("/realTimeProducts", viewRouter)
-app.use("/api/productDb", productDbRouter)
 app.use('/messages', messageRouter)
 
 //Reglas
-
 app.get('/', async (req, res) => {
   try {
     // const products = await productManager.getProducts()
@@ -66,7 +69,7 @@ app.use((req, res, next) => {
 // Socket.io
 io.on('connection', async (socket) => {
   console.log('Usuario conectado')
-  
+
   //product manager actualizable
   socket.on('updateProducts', (products) => {
     io.emit('updateProducts', products)
@@ -87,11 +90,22 @@ io.on('connection', async (socket) => {
   })
   //fin product manager
 
-  socket.on("chat message", (msg) =>{
+  //Chat
+  socket.on("chat message", async (msg) => {
     io.emit("chat message", msg)
+
+    try {
+      const message = new Message({
+        users: msg.users,
+        message: msg.message
+      })
+      await message.save()
+    } catch (error) {
+      console.error('Error saving message:', error)
+    }
   })
 
   socket.on('disconnect', () => {
     console.log('Usuario desconectado')
-  });
-});
+  })
+})

@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
 // Ruta para agregar un nuevo mensaje
 router.post('/', async (req, res) => {
     const message = new Message({
-        users: req.body.users,
+        users: req.body.username,
         message: req.body.message
     })
 
