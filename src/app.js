@@ -14,7 +14,6 @@ const productsDao = require("./daos/products.dao")
 const messageRouter = require('./routes/message.router')
 const Message = require('./daos/models/chat.model')
 
-
 const app = express()
 const httpServer = app.listen(8080, () =>
   console.log(`Aplicacion corriendo en puerto 8080`)

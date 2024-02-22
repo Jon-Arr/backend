@@ -4,7 +4,26 @@ const productModel = require ('../daos/models/products.model')
 
 router.get('/', async (req, res) => {
     try{
-        let products = await productModel.find()
+        // let products = await productModel.find()
+
+        // const { page = 1, limit = 10 } = req.query
+        // const products = await productModel.paginate({}, { page: parseInt(page), limit: parseInt(limit) })
+
+        const { page = 1, limit = 10, stock, sort = 'price', order = 'asc' } = req.query
+
+        const query = {}
+        if (stock) {
+            query.stock = stock
+        }
+
+        const options = {
+            page: parseInt(page),
+            limit: parseInt(limit),
+            sort: { [sort]: order === 'asc' ? 1 : -1 }
+        }
+
+        const products = await productModel.paginate(query, options)
+
         res.send({result:"success", payload:products})
     }
     catch(error){
