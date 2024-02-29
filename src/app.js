@@ -13,16 +13,34 @@ const productDbRouter = require("./routes/productDb.router")
 const productsDao = require("./daos/products.dao")
 const messageRouter = require('./routes/message.router')
 const Message = require('./daos/models/chat.model')
+const MongoStore = require('connect-mongo')
+// const indexRouter = require('./routes/index')
+const authRouter = require('./routes/auth.router')
+const session = require('express-session')
+const FileStorage = require('session-file-store')
+// const cookieParser = require('cookie')
 
 const app = express()
 const httpServer = app.listen(8080, () =>
   console.log(`Aplicacion corriendo en puerto 8080`)
 )
 const io = new Server(httpServer)
+const fileStorage = FileStorage(session)
+// app.use(cookieParser())
+app.use(session({
+  store: MongoStore.create({
+    mongoUrl:"mongodb+srv://jaarriazae:axb5a2RQIMvydRDb@ecommerce.jzgqf9a.mongodb.net/?retryWrites=true&w=majority",
+    mongoOptions:{useNewUrlParser:true,useUnifiedTopology:true},
+    ttl:100,
+  }),
+  secret: 'secret-key',
+  resave: false,
+  saveUninitialized: false,
+}))
 
 //Mongoose
-// mongoose.connect("mongodb+srv://jaarriazae:axb5a2RQIMvydRDb@ecommerce.jzgqf9a.mongodb.net/?retryWrites=true&w=majority")
-mongoose.connect("mongodb://localhost:27017")
+mongoose.connect("mongodb+srv://jaarriazae:axb5a2RQIMvydRDb@ecommerce.jzgqf9a.mongodb.net/?retryWrites=true&w=majority")
+// mongoose.connect("mongodb://localhost:27017")
 
 //Uso handlebars vistas
 app.engine("handlebars", handlebars.engine())
@@ -40,6 +58,8 @@ app.use("/api/carts", cartsRouter)
 app.use("/api/cartsdb", cartsDbRouter)
 app.use("/realTimeProducts", viewRouter)
 app.use('/messages', messageRouter)
+// app.use('/', indexRouter)
+app.use('/api/sessions', authRouter)
 
 //Reglas
 app.get('/', async (req, res) => {
