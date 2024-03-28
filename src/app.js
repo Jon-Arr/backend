@@ -18,7 +18,84 @@ const MongoStore = require('connect-mongo')
 const authRouter = require('./routes/auth.router')
 const session = require('express-session')
 const FileStorage = require('session-file-store')
-// const cookieParser = require('cookie')
+const cookieParser = require('cookie')
+const passport = require('passport')
+const LocalStrategy = require('passport-local').Strategy
+const JwtStrategy = require('passport-jwt').Strategy
+const ExtractJwt = require('passport-jwt').ExtractJwt
+const User = require('./daos/models/usermodel')
+const config = require('../config')
+
+const jwtOptions = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: jwtSecret
+}
+
+const jwt = require('jsonwebtoken');
+const passport = require('passport');
+const jwtSecret = 'jwt_secret'
+
+exports.login = (req, res, next) => {
+    passport.authenticate('local', { session: false }, (err, user) => {
+        if (err || !user) {
+            return res.status(400).json({ message: 'Error en la autenticación', user })
+        }
+        req.login(user, { session: false }, (err) => {
+            if (err) {
+                res.send(err)
+            }
+            const token = jwt.sign({ id: user.id }, jwtSecret)
+            return res.json({ user, token })
+        });
+    })(req, res, next)
+}
+
+passport.use(new LocalStrategy({
+  usernameField: 'email',
+  passwordField: 'password'
+}, async (email, password, done) => {
+  try {
+      const user = await User.findOne({ email })
+      if (!user) {
+          return done(null, false, { message: 'Usuario no encontrado' })
+      }
+      const isValidPassword = await user.isValidPassword(password);
+      if (!isValidPassword) {
+          return done(null, false, { message: 'Contraseña incorrecta' })
+      }
+      return done(null, user)
+  } catch (error) {
+      return done(error)
+  }
+}))
+
+passport.use(new JwtStrategy({
+  secretOrKey: 'secret_key',
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken()
+}, async (payload, done) => {
+  try {
+      const user = await User.findById(payload.sub)
+      if (!user) {
+          return done(null, false)
+      }
+      return done(null, user)
+  } catch (error) {
+      return done(error)
+  }
+}))
+
+passport.serializeUser((user, done) => {
+  done(null, user.id)
+})
+
+passport.deserializeUser(async (id, done) => {
+  try {
+      const user = await User.findById(id);
+      done(null, user)
+  } catch (error) {
+      done(error)
+  }
+})
 
 const app = express()
 const httpServer = app.listen(8080, () =>
@@ -26,6 +103,7 @@ const httpServer = app.listen(8080, () =>
 )
 const io = new Server(httpServer)
 const fileStorage = FileStorage(session)
+
 // app.use(cookieParser())
 app.use(session({
   store: MongoStore.create({
@@ -50,6 +128,15 @@ app.set('view engine', 'handlebars')
 //Middleware
 app.use(express.json())
 app.use(express.static("public"))
+exports.verifyToken = (req, res, next) => {
+  passport.authenticate('jwt-cookie', { session: false }, (err, user) => {
+      if (err || !user) {
+          return res.status(401).json({ message: 'Error en la autenticación' })
+      }
+      req.user = user
+      next();
+  })(req, res, next)
+}
 
 //Rutas
 app.use("/api/products", productsRouter)
