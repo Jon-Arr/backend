@@ -25,6 +25,7 @@ const JwtStrategy = require('passport-jwt').Strategy
 const ExtractJwt = require('passport-jwt').ExtractJwt
 const User = require('./daos/models/usermodel')
 const config = require('../config')
+const nodemailer = require('nodemailer')
 
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -170,6 +171,31 @@ app.get("/ping", (req, res) => {
 
 app.use((req, res, next) => {
   res.render("404")
+})
+
+app.get('/mail', async(req,res) =>{
+  let result = await transport.sendMail({
+    from:'Correo de prueba <jaarriaza.e@gmail.com>',
+    to:'jaarriaza.e@gmail.com',
+    subject:'Correo de prueba',
+    html:`<div>
+          <h1>Testing</h1>
+          </div>`,
+    attachments:[{
+      filename: '404.jpg',
+      path:__dirname+'./img/404.jpg',
+      cid:'notfound'
+  }]
+  })
+  res.send({status:"success", result:"Email Sent"})
+})
+const transport = nodemailer.createTransport({
+  service: 'gmail',
+  port:587,
+  auth:{
+    user:'jaarriaza.e@gmail.com',
+    pass:'pass'
+  }
 })
 
 // Socket.io
