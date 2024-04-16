@@ -26,6 +26,8 @@ const ExtractJwt = require('passport-jwt').ExtractJwt
 const User = require('./daos/models/usermodel')
 const config = require('../config')
 const nodemailer = require('nodemailer')
+const mockingMiddleware = require('./routes/mockingModule')
+const { errorHandler, errorMessages } = require('./routes/errorHandlers')
 
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -138,6 +140,11 @@ exports.verifyToken = (req, res, next) => {
       next();
   })(req, res, next)
 }
+app.use((err, req, res, next) => {
+  console.error(err.stack)
+  res.status(500).send('Algo salió mal en el servidor')
+})
+app.use(errorHandler)
 
 //Rutas
 app.use("/api/products", productsRouter)
@@ -148,6 +155,7 @@ app.use("/realTimeProducts", viewRouter)
 app.use('/messages', messageRouter)
 // app.use('/', indexRouter)
 app.use('/api/sessions', authRouter)
+app.use('/mockingMiddleware')
 
 //Reglas
 app.get('/', async (req, res) => {
@@ -195,6 +203,20 @@ const transport = nodemailer.createTransport({
   auth:{
     user:'jaarriaza.e@gmail.com',
     pass:'pass'
+  }
+})
+
+app.get('/api/products/:id', (req, res, next) => {
+  const productId = req.params.id
+  // Simulación de un error si el producto no se encuentra
+  const product = null
+  if (!product) {
+    const err = new Error()
+    err.status = 404
+    err.code = 'PRODUCT_NOT_FOUND'
+    next(err)
+  } else {
+    res.json(product)
   }
 })
 
