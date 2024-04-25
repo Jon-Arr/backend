@@ -28,6 +28,7 @@ const config = require('../config')
 const nodemailer = require('nodemailer')
 const mockingMiddleware = require('./routes/mockingModule')
 const { errorHandler, errorMessages } = require('./routes/errorHandlers')
+const logger = require('./routes/logger')
 
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -159,6 +160,8 @@ app.use('/mockingMiddleware')
 
 //Reglas
 app.get('/', async (req, res) => {
+  logger.debug('Petición recibida en /')
+  res.send('¡Hola Mundo!')
   try {
     // const products = await productManager.getProducts()
     const products = await productsDao.getAllProducts()
@@ -167,6 +170,21 @@ app.get('/', async (req, res) => {
     console.error('Error obteniendo productos:', error)
     res.status(500).send('Error interno del servidor')
   }
+})
+
+app.get('/error', (req, res) => {
+  logger.error('Petición fallida en /error')
+  res.status(500).send('Error en el servidor')
+})
+
+app.get('/loggerTest', (req, res) => {
+  logger.debug('Esto es un mensaje de debug')
+  logger.info('Esto es un mensaje de info')
+  logger.warn('Esto es un mensaje de advertencia')
+  logger.error('Esto es un mensaje de error')
+  logger.fatal('Esto es un mensaje fatal')
+  
+  res.send('Logs generados. Por favor, revisa los archivos de registro.')
 })
 
 app.get('/chat', async (req, res) => {
