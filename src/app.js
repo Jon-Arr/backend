@@ -147,6 +147,41 @@ app.use((err, req, res, next) => {
 })
 app.use(errorHandler)
 
+//Reset PSWD
+app.post('/forgotPassword', async (req, res) => {
+  try {
+    const { email } = req.body
+    const user = await User.findOne({ email })
+
+    if (!user) {
+      res.status(404).send('No se encontró ningún usuario con este correo electrónico.')
+      return
+    }
+
+    const resetToken = uuidv4()
+    user.resetPasswordToken = resetToken
+    user.resetPasswordExpires = Date.now() + 3600000
+
+    await user.save()
+
+    const resetLink = `${req.protocol}://${req.get('host')}/resetPassword/${resetToken}`
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Restablecimiento de contraseña',
+      text: `Has solicitado restablecer tu contraseña. Por favor, haz clic en el siguiente enlace para crear una nueva contraseña: ${resetLink}`,
+    }
+
+    await transporter.sendMail(mailOptions)
+
+    res.send('Se ha enviado un correo electrónico con instrucciones para restablecer tu contraseña.')
+  } catch (error) {
+    logger.error('Error al enviar el correo electrónico de restablecimiento de contraseña:', error)
+    res.status(500).send('Ocurrió un error al enviar el correo electrónico de restablecimiento de contraseña.')
+  }
+})
+
 //Rutas
 app.use("/api/products", productsRouter)
 app.use("/api/productsDb", productDbRouter)
@@ -235,6 +270,49 @@ app.get('/api/products/:id', (req, res, next) => {
     next(err)
   } else {
     res.json(product)
+  }
+})
+
+app.get('/resetPassword/:token', async (req, res) => {
+  try {
+    const { token } = req.params
+    const user = await User.findOne({ resetPasswordToken: token, resetPasswordExpires: { $gt: Date.now() } })
+
+    if (!user) {
+      res.render('resetPasswordExpired')
+      return
+    }
+
+    res.render('resetPassword', { token })
+  } catch (error) {
+    logger.error('Error al cargar la página de restablecimiento de contraseña:', error)
+    res.status(500).send('Ocurrió un error al cargar la página de restablecimiento de contraseña.')
+  }
+})
+
+app.post('/resetPassword/:token', async (req, res) => {
+  try {
+    const { token } = req.params
+    const { password } = req.body
+
+    const user = await User.findOne({ resetPasswordToken: token, resetPasswordExpires: { $gt: Date.now() } })
+
+    if (!user) {
+      res.render('resetPasswordExpired')
+      return
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10)
+    user.password = hashedPassword
+    user.resetPasswordToken = undefined
+    user.resetPasswordExpires = undefined
+
+    await user.save()
+
+    res.redirect('/login')
+  } catch (error) {
+    logger.error('Error al restablecer la contraseña:', error)
+    res.status(500).send('Ocurrió un error al restablecer la contraseña.')
   }
 })
 
