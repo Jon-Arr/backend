@@ -29,6 +29,9 @@ const nodemailer = require('nodemailer')
 const mockingMiddleware = require('./routes/mockingModule')
 const { errorHandler, errorMessages } = require('./routes/errorHandlers')
 const logger = require('./routes/logger')
+const swagger = require('./routes/swagger')
+
+swagger(app)
 
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),

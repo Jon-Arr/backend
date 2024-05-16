@@ -126,3 +126,134 @@ router.delete('/:id', checkRole('premium'), checkProductOwnership, async (req, r
   })
 
 module.exports = router
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Product:
+ *       type: object
+ *       required:
+ *         - title
+ *         - description
+ *         - price
+ *         - thumbnail
+ *         - code
+ *         - stock
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: Identificador único del producto
+ *         title:
+ *           type: string
+ *           description: Título del producto
+ *         description:
+ *           type: string
+ *           description: Descripción del producto
+ *         price:
+ *           type: number
+ *           description: Precio del producto
+ *         thumbnail:
+ *           type: string
+ *           description: URL de la imagen del producto
+ *         code:
+ *           type: string
+ *           description: Código del producto
+ *         stock:
+ *           type: integer
+ *           description: Stock disponible del producto
+ */
+
+/**
+ * @swagger
+ * /api/products:
+ *   get:
+ *     summary: Obtiene todos los productos
+ *     responses:
+ *       '200':
+ *         description: Respuesta exitosa
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Product'
+ *   post:
+ *     summary: Crea un nuevo producto
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Product'
+ *     responses:
+ *       '201':
+ *         description: Producto creado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Product'
+ *       '400':
+ *         description: Datos de entrada inválidos
+ */
+
+/**
+ * @swagger
+ * /api/products/{id}:
+ *   get:
+ *     summary: Obtiene un producto por su ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID del producto a obtener
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       '200':
+ *         description: Respuesta exitosa
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Product'
+ *       '404':
+ *         description: Producto no encontrado
+ *   put:
+ *     summary: Actualiza un producto por su ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID del producto a actualizar
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Product'
+ *     responses:
+ *       '200':
+ *         description: Producto actualizado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Product'
+ *       '404':
+ *         description: Producto no encontrado
+ *   delete:
+ *     summary: Elimina un producto por su ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID del producto a eliminar
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       '204':
+ *         description: Producto eliminado exitosamente
+ *       '404':
+ *         description: Producto no encontrado
+ */

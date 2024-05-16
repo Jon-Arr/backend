@@ -92,3 +92,92 @@ router.post('/:productId', checkRole('premium'), checkProductOwnership, async (r
 
 
 module.exports = router
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     CartItem:
+ *       type: object
+ *       required:
+ *         - productId
+ *         - quantity
+ *       properties:
+ *         productId:
+ *           type: integer
+ *           description: ID del producto en el carrito
+ *         quantity:
+ *           type: integer
+ *           description: Cantidad del producto en el carrito
+ */
+
+/**
+ * @swagger
+ * /api/carts/{userId}:
+ *   get:
+ *     summary: Obtiene el carrito de un usuario por su ID
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         description: ID del usuario
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       '200':
+ *         description: Respuesta exitosa
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/CartItem'
+ *       '404':
+ *         description: Carrito no encontrado
+ *   post:
+ *     summary: Agrega un producto al carrito de un usuario por su ID
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         description: ID del usuario
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CartItem'
+ *     responses:
+ *       '201':
+ *         description: Producto agregado al carrito exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/CartItem'
+ *       '400':
+ *         description: Datos de entrada inválidos
+ *       '404':
+ *         description: Carrito no encontrado
+ *   delete:
+ *     summary: Elimina un producto del carrito de un usuario por su ID
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         description: ID del usuario
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: productId
+ *         required: true
+ *         description: ID del producto a eliminar del carrito
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       '204':
+ *         description: Producto eliminado del carrito exitosamente
+ *       '404':
+ *         description: Carrito no encontrado o producto no encontrado en el carrito
+ */
