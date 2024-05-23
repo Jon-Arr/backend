@@ -362,3 +362,5 @@ io.on('connection', async (socket) => {
     console.log('Usuario desconectado')
   })
 })
+
+module.exports = app
