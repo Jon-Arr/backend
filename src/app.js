@@ -12,6 +12,7 @@ const viewRouter = require("./routes/view.router")
 const productDbRouter = require("./routes/productDb.router")
 const productsDao = require("./daos/products.dao")
 const messageRouter = require('./routes/message.router')
+const usersRouter = require('./routes/users.router')
 const Message = require('./daos/models/chat.model')
 const MongoStore = require('connect-mongo')
 // const indexRouter = require('./routes/index')
@@ -30,6 +31,9 @@ const mockingMiddleware = require('./routes/mockingModule')
 const { errorHandler, errorMessages } = require('./routes/errorHandlers')
 const logger = require('./routes/logger')
 const swagger = require('./routes/swagger')
+const dotenv = require('dotenv')
+
+dotenv.config()
 
 swagger(app)
 
@@ -114,18 +118,20 @@ const fileStorage = FileStorage(session)
 // app.use(cookieParser())
 app.use(session({
   store: MongoStore.create({
-    mongoUrl:"mongodb+srv://jaarriazae:axb5a2RQIMvydRDb@ecommerce.jzgqf9a.mongodb.net/?retryWrites=true&w=majority",
+    mongoUrl:process.env.MONGO_URI,
     mongoOptions:{useNewUrlParser:true,useUnifiedTopology:true},
     ttl:100,
   }),
-  secret: 'secret-key',
+  secret: process.env.SECRET_KEY,
   resave: false,
   saveUninitialized: false,
 }))
 
 //Mongoose
-mongoose.connect("mongodb+srv://jaarriazae:axb5a2RQIMvydRDb@ecommerce.jzgqf9a.mongodb.net/?retryWrites=true&w=majority")
+// mongoose.connect("mongodb+srv://jaarriazae:axb5a2RQIMvydRDb@ecommerce.jzgqf9a.mongodb.net/?retryWrites=true&w=majority")
 // mongoose.connect("mongodb://localhost:27017")
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+
 
 //Uso handlebars vistas
 app.engine("handlebars", handlebars.engine())
@@ -193,6 +199,7 @@ app.use("/api/cartsdb", cartsDbRouter)
 app.use("/realTimeProducts", viewRouter)
 app.use('/messages', messageRouter)
 // app.use('/', indexRouter)
+app.use('/api/users', usersRouter)
 app.use('/api/sessions', authRouter)
 app.use('/mockingMiddleware')
 
