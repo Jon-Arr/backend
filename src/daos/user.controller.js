@@ -1,19 +1,35 @@
 const User = require('./models/usermodel')
 
 const changeUserRole = async (req, res) => {
-    const { uid } = req.params
+    const userId = req.params.uid
+  
     try {
-        const user = await User.findById(uid);
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' })
+      const user = await User.findById(userId)
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' })
+      }
+  
+      if (user.role === 'user') {
+        const requiredDocuments = ['Identificacion', 'Comprobante de domicilio', 'Comprobante de estado de cuenta']
+        const hasAllDocuments = requiredDocuments.every(doc => 
+          user.documents.some(userDoc => userDoc.name === doc)
+        )
+  
+        if (!hasAllDocuments) {
+          return res.status(400).json({ message: 'User has not completed uploading all required documents' })
         }
-        user.role = user.role === 'user' ? 'premium' : 'user'
-        await user.save()
-        res.json({ message: `User role updated to ${user.role}` })
+  
+        user.role = 'premium'
+      } else if (user.role === 'premium') {
+        user.role = 'user'
+      }
+  
+      await user.save()
+      res.status(200).json({ message: 'User role updated successfully', role: user.role })
     } catch (error) {
-        res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ message: 'Internal server error', error })
     }
-}
+  }
 
 const addDocument = async (req, res) => {
     const { uid } = req.params

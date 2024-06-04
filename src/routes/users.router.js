@@ -41,7 +41,8 @@ router.put('/premium/:uid', isAuthenticated, isAdmin, changeUserRole, async (req
   }
 })
 
-router.post('/:uid/documents', isAuthenticated, addDocument, upload.array('documents'), uploadDocuments)
+router.post('/:uid/documents', isAuthenticated, addDocument, upload.fields([{ name: 'profile' }, { name: 'product' }, { name: 'document' }]), uploadDocuments)
+router.post('/premium/:uid', changeUserRole)
 router.delete('/:uid/documents/:docId', isAuthenticated, deleteDocument)
 router.get('/:uid/documents', isAuthenticated, getDocuments)
 
