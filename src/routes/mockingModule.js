@@ -13,7 +13,7 @@ const generateMockProducts = () => {
       mockProducts.push(product)
     }
     return mockProducts
-  };
+  }
   
   // Middleware para el endpoint "/mockingproducts"
   const mockingMiddleware = (req, res, next) => {
@@ -26,6 +26,6 @@ const generateMockProducts = () => {
       // Si la URL no es "/mockingproducts" o no es un método GET, pasar al siguiente middleware
       next()
     }
-  };
+  }
   
   module.exports = mockingMiddleware

@@ -1,0 +1,51 @@
+document.addEventListener('DOMContentLoaded', () => {
+  const roleSelects = document.querySelectorAll('.roleSelect')
+  const deleteButtons = document.querySelectorAll('.deleteButton')
+
+  roleSelects.forEach(select => {
+    select.addEventListener('change', async (event) => {
+      const uid = event.target.getAttribute('data-uid')
+      const role = event.target.value
+
+      try {
+        const response = await fetch(`/api/users/role/${uid}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ role })
+        })
+
+        const result = await response.json()
+        alert(result.message)
+      } catch (error) {
+        console.error('Error updating role:', error)
+        alert('Error actualizando el rol del usuario.')
+      }
+    })
+  })
+
+  deleteButtons.forEach(button => {
+    button.addEventListener('click', async (event) => {
+      const uid = event.target.getAttribute('data-uid')
+
+      if (confirm('¿Estás seguro de que quieres eliminar este usuario?')) {
+        try {
+          const response = await fetch(`/api/users/${uid}`, {
+            method: 'DELETE'
+          })
+
+          const result = await response.json()
+          alert(result.message)
+
+          if (response.ok) {
+            event.target.closest('tr').remove()
+          }
+        } catch (error) {
+          console.error('Error deleting user:', error)
+          alert('Error eliminando el usuario.')
+        }
+      }
+    })
+  })
+})

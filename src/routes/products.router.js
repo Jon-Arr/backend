@@ -4,6 +4,8 @@ const express = require('express')
 const router = express.Router()
 const productDao = require('../daos/products.dao')
 const logger = require('./logger')
+const {deleteProduct} = require('../daos/products.dao')
+const {isAdmin, isOwnerOrAdmin} = require('../middlewares/auth')
 
 
 // Middleware check rol
@@ -124,6 +126,8 @@ router.delete('/:id', checkRole('premium'), checkProductOwnership, async (req, r
       res.status(500).send('Error al eliminar el producto.')
     }
   })
+
+router.delete('/:productId', isOwnerOrAdmin, deleteProduct)
 
 module.exports = router
 

@@ -19,32 +19,62 @@ const MongoStore = require('connect-mongo')
 const authRouter = require('./routes/auth.router')
 const session = require('express-session')
 const FileStorage = require('session-file-store')
-const cookieParser = require('cookie')
+const cookieParser = require('cookie-parser')
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
 const JwtStrategy = require('passport-jwt').Strategy
+const { jwtSecret } = require('../config')
 const ExtractJwt = require('passport-jwt').ExtractJwt
-const User = require('./daos/models/usermodel')
+const User = require('./daos/models/user.model')
 const config = require('../config')
 const nodemailer = require('nodemailer')
 const mockingMiddleware = require('./routes/mockingModule')
 const { errorHandler, errorMessages } = require('./routes/errorHandlers')
 const logger = require('./routes/logger')
-const swagger = require('./routes/swagger')
+// const swagger = require('./routes/swagger')
+const swaggerUi = require('swagger-ui-express')
+const swaggerJsDoc = require('swagger-jsdoc')
 const dotenv = require('dotenv')
+
 
 dotenv.config()
 
-swagger(app)
+// swagger(app)
 
-const jwtOptions = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: jwtSecret
+const swaggerOptions = {
+  swaggerDefinition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'E-commerce API',
+      version: '1.0.0',
+      description: 'E-commerce API Information',
+      contact: {
+        name: 'Developer',
+      },
+    },
+    servers: [
+      {
+        url: 'http://localhost:8080',
+      },
+    ],
+  },
+  apis: ['./routes/*.js'], 
 }
+const swaggerDocs = swaggerJsDoc(swaggerOptions)
 
-const jwt = require('jsonwebtoken');
-const passport = require('passport');
-const jwtSecret = 'jwt_secret'
+
+
+const jwt = require('jsonwebtoken')
+// const jwtSecret = 'jwt_secret'
+
+// const jwtOptions = {
+//   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+//   secretOrKey: jwtSecret
+// }
+
+const opts = {}
+opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken()
+opts.secretOrKey = jwtSecret
 
 exports.login = (req, res, next) => {
     passport.authenticate('local', { session: false }, (err, user) => {
@@ -57,7 +87,7 @@ exports.login = (req, res, next) => {
             }
             const token = jwt.sign({ id: user.id }, jwtSecret)
             return res.json({ user, token })
-        });
+        })
     })(req, res, next)
 }
 
@@ -115,22 +145,39 @@ const httpServer = app.listen(8080, () =>
 const io = new Server(httpServer)
 const fileStorage = FileStorage(session)
 
-// app.use(cookieParser())
+app.use(cookieParser())
 app.use(session({
-  store: MongoStore.create({
-    mongoUrl:process.env.MONGO_URI,
-    mongoOptions:{useNewUrlParser:true,useUnifiedTopology:true},
-    ttl:100,
-  }),
-  secret: process.env.SECRET_KEY,
+  secret: "itrc3n7JLgreetuD",  
   resave: false,
   saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: "mongodb+srv://jaarriazae:itrc3n7JLgreetuD@ecommerce.jzgqf9a.mongodb.net/?retryWrites=true&w=majority",
+    mongoOptions: { useNewUrlParser: true, useUnifiedTopology: true },
+    ttl: 100,
+  }),
 }))
+
+// app.use(cookieParser())
+// app.use(session({
+//   store: MongoStore.create({
+//     mongoUrl:process.env.MONGO_URI,
+//     mongoOptions:{useNewUrlParser:true,useUnifiedTopology:true},
+//     ttl:100,
+//   }),
+//   secret: process.env.SECRET_KEY,
+//   resave: false,
+//   saveUninitialized: false,
+// }))
 
 //Mongoose
 // mongoose.connect("mongodb+srv://jaarriazae:axb5a2RQIMvydRDb@ecommerce.jzgqf9a.mongodb.net/?retryWrites=true&w=majority")
 // mongoose.connect("mongodb://localhost:27017")
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+// mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+// mongoose.connect("mongodb+srv://jaarriazae:axb5a2RQIMvydRDb@ecommerce.jzgqf9a.mongodb.net/?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true })
+
+mongoose.connect("mongodb+srv://jaarriazae:itrc3n7JLgreetuD@ecommerce.jzgqf9a.mongodb.net/?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('Conexión a MongoDB exitosa'))
+  .catch(err => console.error('Error al conectar a MongoDB:', err.message));
 
 
 //Uso handlebars vistas
@@ -140,6 +187,9 @@ app.set('view engine', 'handlebars')
 
 //Middleware
 app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+app.use(passport.initialize())
+app.use(passport.session())
 app.use(express.static("public"))
 exports.verifyToken = (req, res, next) => {
   passport.authenticate('jwt-cookie', { session: false }, (err, user) => {
@@ -182,7 +232,7 @@ app.post('/forgotPassword', async (req, res) => {
       text: `Has solicitado restablecer tu contraseña. Por favor, haz clic en el siguiente enlace para crear una nueva contraseña: ${resetLink}`,
     }
 
-    await transporter.sendMail(mailOptions)
+    await transport.sendMail(mailOptions)
 
     res.send('Se ha enviado un correo electrónico con instrucciones para restablecer tu contraseña.')
   } catch (error) {
@@ -201,12 +251,12 @@ app.use('/messages', messageRouter)
 // app.use('/', indexRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/sessions', authRouter)
-app.use('/mockingMiddleware')
+app.use('/mockingMiddleware', mockingMiddleware)
 
 //Reglas
 app.get('/', async (req, res) => {
   logger.debug('Petición recibida en /')
-  res.send('¡Hola Mundo!')
+  res.send('¡Te damos la bienvenida!')
   try {
     // const products = await productManager.getProducts()
     const products = await productsDao.getAllProducts()
@@ -227,7 +277,6 @@ app.get('/loggerTest', (req, res) => {
   logger.info('Esto es un mensaje de info')
   logger.warn('Esto es un mensaje de advertencia')
   logger.error('Esto es un mensaje de error')
-  logger.fatal('Esto es un mensaje fatal')
   
   res.send('Logs generados. Por favor, revisa los archivos de registro.')
 })

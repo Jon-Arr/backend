@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
-const User = require('../daos/models/usermodel')
+const User = require('./models/user.model')
 
 exports.register = async (req, res) => {
     try {

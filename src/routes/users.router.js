@@ -4,7 +4,7 @@ const userDao = require('../daos/users.dao')
 const logger = require('./logger')
 const upload = require('../middlewares/multer')
 const { isAuthenticated, isAdmin } = require('../middlewares/auth')
-const { changeUserRole, addDocument, deleteDocument, getDocuments, uploadDocuments } = require('../daos/user.controller')
+const { changeUserRole, addDocument, deleteDocument, getDocuments, uploadDocuments, getAllUsers, deleteInactiveUsers, updateUserRole } = require('../daos/user.controller')
 
 // Middleware para verificar el rol del usuario
 // function checkRole(role) {
@@ -45,5 +45,8 @@ router.post('/:uid/documents', isAuthenticated, addDocument, upload.fields([{ na
 router.post('/premium/:uid', changeUserRole)
 router.delete('/:uid/documents/:docId', isAuthenticated, deleteDocument)
 router.get('/:uid/documents', isAuthenticated, getDocuments)
+router.get('/', isAdmin, getAllUsers)
+router.delete('/', isAdmin, deleteInactiveUsers)
+router.put('/role/:uid', isAdmin, updateUserRole)
 
 module.exports = router
